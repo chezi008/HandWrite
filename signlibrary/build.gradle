@@ -1,7 +1,5 @@
 apply plugin: 'com.android.library'
 
-apply plugin: 'com.novoda.bintray-release'
-
 android {
     compileSdkVersion 27
     defaultConfig {
@@ -19,14 +17,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
 
-    lintOptions {
-        abortOnError false
-    }
 }
 
 dependencies {
@@ -35,16 +26,5 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
-}
-
-version = "1.0.0"
-
-publish {
-    userOrg = 'novoda'
-    groupId = 'com.novoda'
-    artifactId = 'bintray-release'
-    publishVersion = '0.8.1'
-    desc = 'Oh hi, this is a nice description for a project, right?'
-    website = 'https://github.com/novoda/bintray-release'
 }
 
