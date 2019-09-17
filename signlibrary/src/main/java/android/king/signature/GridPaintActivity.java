@@ -3,6 +3,7 @@ package android.king.signature;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -184,13 +185,16 @@ public class GridPaintActivity extends BaseActivity implements View.OnClickListe
         if (bgColor != Color.TRANSPARENT) {
             mTextContainer.setBackgroundColor(bgColor);
         }
-        mEditView.addTextWatcher(s -> {
-            if (s != null && s.length() > 0) {
-                mClearView.setEnabled(true);
-                mClearView.setImage(R.drawable.sign_ic_clear, PenConfig.THEME_COLOR);
-            } else {
-                mClearView.setEnabled(false);
-                mClearView.setImage(R.drawable.sign_ic_clear, Color.LTGRAY);
+        mEditView.addTextWatcher(new HandWriteEditView.TextWatch() {
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s != null && s.length() > 0) {
+                    mClearView.setEnabled(true);
+                    mClearView.setImage(R.drawable.sign_ic_clear, PenConfig.THEME_COLOR);
+                } else {
+                    mClearView.setEnabled(false);
+                    mClearView.setImage(R.drawable.sign_ic_clear, Color.LTGRAY);
+                }
             }
         });
     }
@@ -224,10 +228,13 @@ public class GridPaintActivity extends BaseActivity implements View.OnClickListe
         builder.setTitle("提示")
                 .setMessage("清空文本框内手写内容？")
                 .setNegativeButton("取消", null)
-                .setPositiveButton("确定", (dialog, which) -> {
-                    mEditView.setText("");
-                    mEditView.setSelection(0);
-                    cacheEditable = null;
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mEditView.setText("");
+                        mEditView.setSelection(0);
+                        cacheEditable = null;
+                    }
                 });
         builder.show();
     }
@@ -285,25 +292,28 @@ public class GridPaintActivity extends BaseActivity implements View.OnClickListe
         mEditView.setCursorVisible(false);
 
         mSaveProgressDlg.show();
-        new Thread(() -> {
-            if (PenConfig.FORMAT_JPG.equals(format) && bgColor == Color.TRANSPARENT) {
-                bgColor = Color.WHITE;
-            }
-            Bitmap bm = getWriteBitmap(bgColor);
-            bm = BitmapUtil.clearBlank(bm, 20, bgColor);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (PenConfig.FORMAT_JPG.equals(format) && bgColor == Color.TRANSPARENT) {
+                    bgColor = Color.WHITE;
+                }
+                Bitmap bm = getWriteBitmap(bgColor);
+                bm = BitmapUtil.clearBlank(bm, 20, bgColor);
 
-            if (bm == null) {
-                mHandler.obtainMessage(MSG_SAVE_FAILED).sendToTarget();
-                return;
+                if (bm == null) {
+                    mHandler.obtainMessage(MSG_SAVE_FAILED).sendToTarget();
+                    return;
+                }
+                mSavePath = BitmapUtil.saveImage(GridPaintActivity.this, bm, 100, format);
+                if (mSavePath != null) {
+                    mHandler.obtainMessage(MSG_SAVE_SUCCESS).sendToTarget();
+                } else {
+                    mHandler.obtainMessage(MSG_SAVE_FAILED).sendToTarget();
+                }
+                bm.recycle();
+                bm = null;
             }
-            mSavePath = BitmapUtil.saveImage(GridPaintActivity.this, bm, 100, format);
-            if (mSavePath != null) {
-                mHandler.obtainMessage(MSG_SAVE_SUCCESS).sendToTarget();
-            } else {
-                mHandler.obtainMessage(MSG_SAVE_FAILED).sendToTarget();
-            }
-            bm.recycle();
-            bm = null;
         }).start();
     }
 
@@ -431,9 +441,12 @@ public class GridPaintActivity extends BaseActivity implements View.OnClickListe
         builder.setTitle("提示")
                 .setMessage("当前文字未保存，是否退出？")
                 .setNegativeButton("取消", null)
-                .setPositiveButton("确定", (dialog, which) -> {
-                    setResult(RESULT_CANCELED);
-                    finish();
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    }
                 });
         builder.show();
     }

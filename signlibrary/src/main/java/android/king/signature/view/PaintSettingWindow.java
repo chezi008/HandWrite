@@ -48,17 +48,20 @@ public class PaintSettingWindow extends PopupWindow {
                 lastSelectColorView = circleView;
             }
 
-            circleView.setOnClickListener(v -> {
-                if (lastSelectColorView != null) {
-                    lastSelectColorView.showBorder(false);
-                }
-                circleView.showBorder(true);
-                selectColor = Color.parseColor(PEN_COLORS[index]);
-                lastSelectColorView = circleView;
-                PenConfig.PAINT_COLOR = selectColor;
-                PenConfig.setPaintColor(context, selectColor);
-                if (settingListener != null) {
-                    settingListener.onColorSetting(selectColor);
+            circleView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (lastSelectColorView != null) {
+                        lastSelectColorView.showBorder(false);
+                    }
+                    circleView.showBorder(true);
+                    selectColor = Color.parseColor(PEN_COLORS[index]);
+                    lastSelectColorView = circleView;
+                    PenConfig.PAINT_COLOR = selectColor;
+                    PenConfig.setPaintColor(context, selectColor);
+                    if (settingListener != null) {
+                        settingListener.onColorSetting(selectColor);
+                    }
                 }
             });
         }
@@ -70,16 +73,19 @@ public class PaintSettingWindow extends PopupWindow {
                 circleView.showBorder(true);
                 lastSelectSizeView = circleView;
             }
-            circleView.setOnClickListener(v -> {
-                if (lastSelectSizeView != null) {
-                    lastSelectSizeView.showBorder(false);
-                }
-                circleView.showBorder(true);
-                lastSelectSizeView = circleView;
-                PenConfig.PAINT_SIZE_LEVEL = index;
-                PenConfig.savePaintTextLevel(context, index);
-                if (settingListener != null) {
-                    settingListener.onSizeSetting(index);
+            circleView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (lastSelectSizeView != null) {
+                        lastSelectSizeView.showBorder(false);
+                    }
+                    circleView.showBorder(true);
+                    lastSelectSizeView = circleView;
+                    PenConfig.PAINT_SIZE_LEVEL = index;
+                    PenConfig.savePaintTextLevel(context, index);
+                    if (settingListener != null) {
+                        settingListener.onSizeSetting(index);
+                    }
                 }
             });
         }

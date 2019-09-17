@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -364,27 +365,30 @@ public class PaintActivity extends BaseActivity implements View.OnClickListener,
             initSaveProgressDlg();
         }
         mSaveProgressDlg.show();
-        new Thread(() -> {
-            try {
-                Bitmap result = mPaintView.buildAreaBitmap(isCrop);
-                if (PenConfig.FORMAT_JPG.equals(format) && bgColor == Color.TRANSPARENT) {
-                    bgColor = Color.WHITE;
-                }
-                if (bgColor != Color.TRANSPARENT) {
-                    result = BitmapUtil.drawBgToBitmap(result, bgColor);
-                }
-                if (result == null) {
-                    mHandler.obtainMessage(MSG_SAVE_FAILED).sendToTarget();
-                    return;
-                }
-                mSavePath = BitmapUtil.saveImage(PaintActivity.this, result, 100, format);
-                if (mSavePath != null) {
-                    mHandler.obtainMessage(MSG_SAVE_SUCCESS).sendToTarget();
-                } else {
-                    mHandler.obtainMessage(MSG_SAVE_FAILED).sendToTarget();
-                }
-            } catch (Exception e) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Bitmap result = mPaintView.buildAreaBitmap(isCrop);
+                    if (PenConfig.FORMAT_JPG.equals(format) && bgColor == Color.TRANSPARENT) {
+                        bgColor = Color.WHITE;
+                    }
+                    if (bgColor != Color.TRANSPARENT) {
+                        result = BitmapUtil.drawBgToBitmap(result, bgColor);
+                    }
+                    if (result == null) {
+                        mHandler.obtainMessage(MSG_SAVE_FAILED).sendToTarget();
+                        return;
+                    }
+                    mSavePath = BitmapUtil.saveImage(PaintActivity.this, result, 100, format);
+                    if (mSavePath != null) {
+                        mHandler.obtainMessage(MSG_SAVE_SUCCESS).sendToTarget();
+                    } else {
+                        mHandler.obtainMessage(MSG_SAVE_FAILED).sendToTarget();
+                    }
+                } catch (Exception e) {
 
+                }
             }
         }).start();
 
@@ -423,9 +427,12 @@ public class PaintActivity extends BaseActivity implements View.OnClickListener,
         builder.setTitle("提示")
                 .setMessage("当前文字未保存，是否退出？")
                 .setNegativeButton("取消", null)
-                .setPositiveButton("确定", (dialog, which) -> {
-                    setResult(RESULT_CANCELED);
-                    finish();
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        setResult(RESULT_CANCELED);
+                        finish();
+                    }
                 });
         builder.show();
     }

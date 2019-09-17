@@ -75,13 +75,21 @@ public class SystemUtil {
             if (editText == null) {
                 return;
             }
-            editText.setOnLongClickListener(v -> true);
-            editText.setLongClickable(false);
-            editText.setOnTouchListener((v, event) -> {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    setInsertionDisabled(editText);
+            editText.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    return true;
                 }
-                return false;
+            });
+            editText.setLongClickable(false);
+            editText.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                        setInsertionDisabled(editText);
+                    }
+                    return false;
+                }
             });
             editText.setCustomSelectionActionModeCallback(new ActionMode.Callback() {
                 @Override
