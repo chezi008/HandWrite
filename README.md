@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/chezi008/HandWrite.svg)](https://jitpack.io/#chezi008/HandWrite)
+
 # 带笔锋效果的手写签字控件
 
 Android平台原生手写签字控件，功能强大的开源项目。
@@ -19,8 +21,11 @@ Android平台原生手写签字控件，功能强大的开源项目。
 - 适配手机横竖屏布局
 
 ## 用法
-
-本项目暂未上传至gradle库，请下载源码参考示例工程，方便定制化自己的需求。
+```
+dependencies {
+	        implementation 'com.github.chezi008:HandWrite:Tag'
+	}
+ ```
 
 ## 后记
 
